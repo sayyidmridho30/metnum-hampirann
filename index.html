@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Kalkulator Metode Numerik</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function toggleFields() {
+            const method = document.getElementById('method').value;
+            const labelAwal = document.getElementById('label_x_awal');
+            const inputAwal = document.getElementById('x_awal');
+            const labelAkhir = document.getElementById('label_x_akhir');
+            const inputAkhir = document.getElementById('x_akhir');
+
+            if (method === 'mundur') {
+                labelAwal.style.display = 'none';
+                inputAwal.style.display = 'none';
+                labelAkhir.innerText = 'Titik yang ingin dihitung (x):';
+            } else {
+                labelAwal.style.display = 'block';
+                inputAwal.style.display = 'block';
+                labelAkhir.innerText = 'Titik Tengah (x):';
+            }
+        }
+    </script>
+</head>
+<body onload="toggleFields()">
+    <h1>Kalkulator Numerik – Tabel Nilai & Hampiran Turunan</h1>
+
+    <div class="container">
+        <form action="/" method="post">
+            <h2>Tabel Nilai Fungsi</h2>
+            <label>f(x):</label><input type="text" name="fungsi" required>
+            <label>x₀:</label><input type="number" step="any" name="x0" required>
+            <label>h:</label><input type="number" step="any" name="h" required>
+            <label>Jumlah Baris:</label><input type="number" name="rows" required>
+            <button type="submit">Hitung Tabel</button>
+        </form>
+
+        {% if table %}
+            <h3>Hasil Tabel</h3>
+            <table>
+                <tr><th>x</th><th>f(x)</th></tr>
+                {% for x, fx in table %}
+                    <tr><td>{{ x }}</td><td>{{ fx }}</td></tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+
+        <hr>
+
+        <form action="/approximate" method="post">
+            <h2>Hampiran Turunan</h2>
+            <label>Metode:</label>
+            <select name="method" id="method" onchange="toggleFields()">
+                <option value="mundur">Selisih Mundur</option>
+                <option value="pusat">Selisih Pusat</option>
+            </select>
+            <label>f(x):</label><input type="text" name="fungsi_turunan" required>
+            <label id="label_x_awal">x awal:</label><input type="number" step="any" name="x_awal" id="x_awal">
+            <label id="label_x_akhir">Titik yang ingin dihitung (x):</label><input type="number" step="any" name="x_target" id="x_akhir" required>
+            <label>h:</label><input type="number" step="any" name="h_turunan" required>
+            <label>Turunan ke-berapa:</label><input type="number" name="turunan_ke" required>
+            <label>Orde Galat:</label>
+            <select name="orde">
+                <option value="1">O(h)</option>
+                <option value="2">O(h²)</option>
+                <option value="4">O(h⁴)</option>
+            </select>
+            <button type="submit">Hitung Turunan</button>
+        </form>
+
+        {% if hasil %}
+            <h3>Penjelasan Lengkap</h3>
+            {% for p in penjelasan %}
+                <p>{{ p }}</p>
+            {% endfor %}
+            <p><strong>Nilai Hampiran:</strong> {{ hasil }}</p>
+            <p><strong>Galat Perkiraan:</strong> O(h<sup>{{ orde }}</sup>) = {{ galat }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
